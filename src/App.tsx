@@ -60,7 +60,7 @@ export default function App() {
     }
 
     setIsSending(true);
-    addLog(`INITIATING HYBRID PROTOCOL: TARGET=${phoneNumber}, AMOUNT=${count}`, 'info');
+    addLog(`INITIATING TRANSMISSION: TARGET=${phoneNumber}, AMOUNT=${count}`, 'info');
 
     for (let i = 1; i <= count; i++) {
        if (!isSending && i > 1) {
@@ -78,10 +78,9 @@ export default function App() {
            body: JSON.stringify({ number: phoneNumber, type: 'medeasy' })
          });
          if (res1.ok) {
-           addLog(`BATCH [${i}] API_1: Transmitted successfully.`, 'success');
+           addLog(`BATCH [${i}] SIG_A: Success.`, 'success');
          } else {
-           const err = await res1.json();
-           addLog(`BATCH [${i}] API_1: Transmission failed (${res1.status})`, 'error');
+           addLog(`BATCH [${i}] SIG_A: Critical Failure.`, 'error');
          }
 
          // Small delay within hybrid burst
@@ -94,9 +93,9 @@ export default function App() {
            body: JSON.stringify({ number: phoneNumber, type: 'bikroy' })
          });
          if (res2.ok) {
-           addLog(`BATCH [${i}] API_2: Transmitted successfully.`, 'success');
+           addLog(`BATCH [${i}] SIG_B: Success.`, 'success');
          } else {
-           addLog(`BATCH [${i}] API_2: Transmission failed (${res2.status})`, 'error');
+           addLog(`BATCH [${i}] SIG_B: Critical Failure.`, 'error');
          }
 
          // Mandatory 3s delay between batches as requested to avoid 429
@@ -163,10 +162,10 @@ export default function App() {
                 <div className="space-y-2">
                   <h2 className="text-lg font-bold flex items-center gap-2">
                     <Settings size={20} className="text-red-500" />
-                    Protocol Configuration
+                    Transmission Settings
                   </h2>
                   <p className="text-[#444444] text-sm font-mono">
-                    System will automatically utilize Hybrid API bursts for maximum throughput.
+                    System ready for secure data transmission.
                   </p>
                 </div>
 
@@ -209,7 +208,7 @@ export default function App() {
                       className="flex-1 bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-tighter py-4 rounded-xl shadow-[0_0_30px_rgba(220,38,38,0.3)] transition-all transform active:scale-[0.98] flex items-center justify-center gap-3"
                     >
                       <Zap size={20} className="fill-current" />
-                      Initiate Protocol
+                      সাবমিট
                     </button>
                   ) : (
                     <button 
