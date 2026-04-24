@@ -57,6 +57,27 @@ async function startServer() {
           }
         });
         return res.json({ success: true, data: response.data });
+      } else if (type === "chaldal") {
+        const response = await axios.post("https://chaldal.com/api/customer/SendOtp", {
+          PhoneNumber: localNumber,
+          isUserChekingByPhone: true
+        }, {
+          headers: {
+            "content-type": "application/json",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+          }
+        });
+        return res.json({ success: true });
+      } else if (type === "shajgoj") {
+        const response = await axios.post("https://api.shajgoj.com/api/v2/customer/login/otp", {
+          phone: localNumber
+        }, {
+          headers: {
+            "content-type": "application/json",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+          }
+        });
+        return res.json({ success: true });
       }
       res.status(400).json({ error: "Invalid API type" });
     } catch (error: any) {

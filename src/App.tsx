@@ -63,61 +63,43 @@ export default function App() {
     addLog(`INITIATING TRANSMISSION: TARGET=${phoneNumber}, AMOUNT=${count}`, 'info');
 
     for (let i = 1; i <= count; i++) {
-       if (!isSending && i > 1) {
-         // This check is a bit tricky with sync loop, but for prototype it's okay
-       }
-       
        addLog(`BATCH [${i}/${count}]: Sequence synchronized...`, 'info');
        
-       // Hybrid mode - send both
-       try {
-         // Medeasy
-         const res1 = await fetch('/api/send', {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({ number: phoneNumber, type: 'medeasy' })
-         });
-         if (res1.ok) {
-           addLog(`BATCH [${i}] SIG_A: SUCCESS`, 'success');
-         } else {
-           addLog(`BATCH [${i}] SIG_A: FAILED`, 'error');
+       const apiTypes = ['medeasy', 'bikroy', 'chaldal', 'shajgoj'];
+       
+       for (const apiType of apiTypes) {
+         try {
+           const res = await fetch('/api/send', {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ number: phoneNumber, type: apiType })
+           });
+           
+           const label = `SIG_${apiType.charAt(0).toUpperCase()}`;
+           if (res.ok) {
+             addLog(`BATCH [${i}] ${label}: SUCCESS`, 'success');
+           } else {
+             addLog(`BATCH [${i}] ${label}: FAILED`, 'error');
+           }
+         } catch (e) {
+           addLog(`BATCH [${i}] SIG_ERR: Link Severed.`, 'error');
          }
+         await new Promise(r => setTimeout(r, 200));
+       }
 
-         // Small delay within hybrid burst
-         await new Promise(r => setTimeout(r, 500));
-
-         // Bikroy
-         const res2 = await fetch('/api/send', {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({ number: phoneNumber, type: 'bikroy' })
-         });
-         if (res2.ok) {
-           addLog(`BATCH [${i}] SIG_B: SUCCESS`, 'success');
-         } else {
-           addLog(`BATCH [${i}] SIG_B: FAILED`, 'error');
-         }
-
-         // Mandatory 3s delay between batches as requested to avoid 429
-         if (i < count) {
-           addLog(`COOLDOWN: Synchronizing next sequence (3s)...`, 'info');
-           await new Promise(r => setTimeout(r, 3000));
-         }
-       } catch (error) {
-         addLog(`CRITICAL ERROR in sequence ${i}: Communication link severed.`, 'error');
+       if (i < count) {
+         addLog(`COOLDOWN: Synchronizing next sequence (3s)...`, 'info');
+         await new Promise(r => setTimeout(r, 3000));
        }
     }
 
     addLog('PROTOCOL COMPLETE: Area clear.', 'success');
     setIsSending(false);
-    // Explicitly resetting or allowing new input is already handled by setIsSending(false) 
-    // because inputs are disabled={isSending}. 
   };
 
   const terminateProtocol = () => {
     setIsSending(false);
     addLog('PROTOCOL TERMINATED: Manual override active.', 'error');
-    // Using reload to ensure all async tasks stop immediately for safety in a bomb-like UI
     setTimeout(() => window.location.reload(), 1000);
   };
 
@@ -258,7 +240,6 @@ export default function App() {
                       <div className="flex items-start gap-2">
                         {log.type === 'success' && <CheckCircle2 size={14} className="text-green-500 mt-1 shrink-0" />}
                         {log.type === 'error' && <AlertCircle size={14} className="text-red-500 mt-1 shrink-0" />}
-                        {log.type === 'info' && <activity size={14} className="text-blue-500 mt-1 shrink-0 opacity-20" />}
                         <span className={`
                           ${log.type === 'success' ? 'text-green-400' : ''}
                           ${log.type === 'error' ? 'text-red-400' : ''}
@@ -281,7 +262,7 @@ export default function App() {
                   rotate: [0, 1, -1, 0]
                 }}
                 transition={{ repeat: Infinity, duration: 4 }}
-                className="w-full max-w-sm"
+                className="w-full max-sm:px-4 max-w-sm"
               >
                 <div className="bg-[#0F0F0F] border border-red-500/20 p-4 rounded-xl text-center space-y-4">
                   <div className="text-[10px] font-mono text-red-500 uppercase tracking-[0.3em]">Maximum Overdrive</div>
