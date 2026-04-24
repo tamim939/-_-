@@ -15,20 +15,28 @@ async function startServer() {
   app.post("/api/send", async (req, res) => {
     const { number, type } = req.body;
     
-    // Normalize number for Medeasy (+880...)
-    const medeasyNumber = number.startsWith("+88") ? number : (number.startsWith("88") ? `+${number}` : `+88${number}`);
-    // Normalize number for Bikroy (Local 10 or 11 digits)
-    const localNumber = number.startsWith("+88") ? number.slice(3) : (number.startsWith("88") ? number.slice(2) : number);
+    // Normalize number for Medeasy (e.g., +88017...)
+    let medeasyNumber = number;
+    if (!medeasyNumber.startsWith("+")) {
+      medeasyNumber = medeasyNumber.startsWith("88") ? `+${medeasyNumber}` : `+88${medeasyNumber}`;
+    }
+    
+    // Normalize number for Bikroy (e.g., 017...)
+    let localNumber = number;
+    if (localNumber.startsWith("+88")) localNumber = localNumber.slice(3);
+    else if (localNumber.startsWith("88")) localNumber = localNumber.slice(2);
 
     try {
       if (type === "medeasy") {
-        const response = await axios.post("https://api.medeasy.health/api/send-otp/", 
-          { registration_phone: medeasyNumber },
+        const response = await axios.post(`https://api.medeasy.health/api/send-otp/`, 
+          { registration_phone: medeasyNumber }, 
           {
             headers: {
               "Origin": "https://medeasy.health",
               "Referer": "https://medeasy.health/",
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+              "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+              "Accept": "application/json",
+              "Content-Type": "application/json"
             }
           }
         );
@@ -36,19 +44,21 @@ async function startServer() {
       } else if (type === "bikroy") {
         const response = await axios.get(`https://bikroy.com/data/phone_number_login/verifications/phone_login?phone=${localNumber}`, {
           headers: {
-            "Origin": "https://bikroy.com",
+            "Accept": "*/*",
+            "Accept-Language": "en-US,en;q=0.9",
             "Referer": "https://bikroy.com/bn/users/login",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+            "X-Bikroy-Origin": "DASHBOARD"
           }
         });
         return res.json({ success: true, data: response.data });
       }
       res.status(400).json({ error: "Invalid API type" });
     } catch (error: any) {
-      console.error(`Error sending via ${type}:`, error.message);
+      console.error(`[SERVER] ERROR [${type}]:`, error.message);
       res.status(error.response?.status || 500).json({ 
-        error: error.message, 
-        details: error.response?.data 
+        error: error.message,
+        details: error.response?.data
       });
     }
   });
