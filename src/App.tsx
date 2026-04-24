@@ -111,12 +111,15 @@ export default function App() {
 
     addLog('PROTOCOL COMPLETE: Area clear.', 'success');
     setIsSending(false);
+    // Explicitly resetting or allowing new input is already handled by setIsSending(false) 
+    // because inputs are disabled={isSending}. 
   };
 
   const terminateProtocol = () => {
     setIsSending(false);
     addLog('PROTOCOL TERMINATED: Manual override active.', 'error');
-    window.location.reload(); // Quickest way to stop the loop for a prototype
+    // Using reload to ensure all async tasks stop immediately for safety in a bomb-like UI
+    setTimeout(() => window.location.reload(), 1000);
   };
 
   return (
