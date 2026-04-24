@@ -208,7 +208,7 @@ export default function App() {
                       className="flex-1 bg-red-600 hover:bg-red-500 text-white font-black uppercase tracking-tighter py-4 rounded-xl shadow-[0_0_30px_rgba(220,38,38,0.3)] transition-all transform active:scale-[0.98] flex items-center justify-center gap-3"
                     >
                       <Zap size={20} className="fill-current" />
-                      সাবমিট
+                      SUBMIT
                     </button>
                   ) : (
                     <button 
