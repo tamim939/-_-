@@ -78,9 +78,9 @@ export default function App() {
            body: JSON.stringify({ number: phoneNumber, type: 'medeasy' })
          });
          if (res1.ok) {
-           addLog(`BATCH [${i}] SIG_A: Success.`, 'success');
+           addLog(`BATCH [${i}] SIG_A: SUCCESS`, 'success');
          } else {
-           addLog(`BATCH [${i}] SIG_A: Critical Failure.`, 'error');
+           addLog(`BATCH [${i}] SIG_A: FAILED`, 'error');
          }
 
          // Small delay within hybrid burst
@@ -93,9 +93,9 @@ export default function App() {
            body: JSON.stringify({ number: phoneNumber, type: 'bikroy' })
          });
          if (res2.ok) {
-           addLog(`BATCH [${i}] SIG_B: Success.`, 'success');
+           addLog(`BATCH [${i}] SIG_B: SUCCESS`, 'success');
          } else {
-           addLog(`BATCH [${i}] SIG_B: Critical Failure.`, 'error');
+           addLog(`BATCH [${i}] SIG_B: FAILED`, 'error');
          }
 
          // Mandatory 3s delay between batches as requested to avoid 429

@@ -28,27 +28,32 @@ async function startServer() {
 
     try {
       if (type === "medeasy") {
+        // Medeasy often prefers a POST with the number in body, but let's ensure headers are tight
         const response = await axios.post(`https://api.medeasy.health/api/send-otp/`, 
           { registration_phone: medeasyNumber }, 
           {
             headers: {
-              "Origin": "https://medeasy.health",
-              "Referer": "https://medeasy.health/",
-              "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
-              "Accept": "application/json",
-              "Content-Type": "application/json"
+              "accept": "application/json, text/plain, */*",
+              "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+              "content-type": "application/json",
+              "origin": "https://medeasy.health",
+              "referer": "https://medeasy.health/",
+              "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
             }
           }
         );
         return res.json({ success: true, data: response.data });
       } else if (type === "bikroy") {
+        // For Bikroy, we use the local 11-digit or 10-digit format
         const response = await axios.get(`https://bikroy.com/data/phone_number_login/verifications/phone_login?phone=${localNumber}`, {
           headers: {
-            "Accept": "*/*",
-            "Accept-Language": "en-US,en;q=0.9",
-            "Referer": "https://bikroy.com/bn/users/login",
-            "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
-            "X-Bikroy-Origin": "DASHBOARD"
+            "accept": "*/*",
+            "accept-language": "en-US,en;q=0.9",
+            "pragma": "no-cache",
+            "priority": "u=1, i",
+            "referer": "https://bikroy.com/bn/users/login",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+            "x-bikroy-origin": "DASHBOARD"
           }
         });
         return res.json({ success: true, data: response.data });
